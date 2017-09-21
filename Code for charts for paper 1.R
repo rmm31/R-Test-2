@@ -17,7 +17,7 @@
   ggplot(AR5, aes(year, price)) +
     stat_summary(fun.data = "iqr", geom = "ribbon", fill = alpha("blue", 1/5)) +
     stat_summary(aes(year), fun.y = IQmean, geom = "line", color = "blue") +
-    stat_summary(aes(year), fun.y = low25, geom = "line", color = "green") +
+    stat_summary(aes(year), fun.y = low35, geom = "line", color = "green") +
     stat_summary(aes(year), fun.y = high65, geom = "line", color = "red") +
     labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
     scale_x_continuous(breaks = seq(2020, 2050, by = 5)) +
