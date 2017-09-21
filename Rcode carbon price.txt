@@ -1,0 +1,178 @@
+#  IQR ribbon with median/trimmed mean line (note year must be numeric)
+
+iqr <- function(x, ...) {qs <- quantile(as.numeric(x), c(0.25, 0.75), na.rm = T)
+names(qs) <- c("ymin", "ymax")
+qs
+}
+
+#0.25 trim to establish the interquartile mean (used by the London Interbank Offered Rate - see Wikipedia)
+
+IQmean <- function(x, ...) {md1 <- mean(as.numeric(x), trim = 0.25, na.rm = TRUE)
+md1
+} 
+
+#Code for IQR ribbon with IQmean
+allribbon <- ggplot(cpriceh, aes(year, priceAUD2016)) +
+stat_summary(fun.data = "iqr", geom = "ribbon", fill = alpha("blue", 1/5)) +
+stat_summary(aes(year), fun.y = IQmean, geom = "line", color = "black") +
+labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
+scale_x_continuous(breaks = pretty(cpriceh$year, n=5)) +
+scale_y_continuous(breaks = pretty(cpriceh$priceAUD2016, n=20))
+
+#Code for faceted selection of charts one for each price series
+allfacet <- qplot(year, priceAUD2016, data = cpriceh, geom = "line", group = source) + facet_wrap(~source, labeller = as_labeller(facet_names)) +
+labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
+scale_x_continuous(breaks = pretty(cpriceh$year, n=5)) +
+  scale_y_continuous(breaks = pretty(cpriceh$priceAUD2016, n=8)) +
+  theme(axis.text.x = element_text(angle=45, vjust=0.8, hjust=0.8))
+#Code to change names for facets
+facet_names <- c(
+  `CPRS15AUD2016` = "CPRS -15 Aust Emissions Price",
+  `CPRS15INTAUD2016` = "CPRS -15 Intn Emissions Price",
+  `DEBIStrhigh` = "DEBIS Traded High",
+  `DEBIStrtrcent` = "DEBIS Traded Central",
+  `DEBIStrlow` = "DEBIS Traded Low",
+  `DEBISuntrhigh` = "DEBIS Untraded High",
+  `DEBISuntrcent` = "DEBIS Untraded Central",
+  `DEBISuntrlow` = "DEBIS Untraded Low",
+  `Garnaut25AUD2016` = "Garnaut -25 Aust Emissions Price",
+  `garnaut25INTAUD2016` = "Garnaut -25 Intn Emissions Price",
+  `PET2017R` = "Pathways 2017",
+  `WEO2016R` = "WEO 2016"
+)
+#Code to put faceted charts and ribbon on a single page.
+multiplot(r, r1, cols=1)
+
+#Create table of values to parallel chart
+
+sumdatall <- cpriceh %>% 
+  group_by(year) %>% 
+  summarise(
+    count = n(),
+    Q1 = quantile(priceAUD2016, c(0.25), na.rm = TRUE),
+    IQmean = mean(priceAUD2016, trim = 0.25, na.rm = TRUE),
+    Q3 = quantile(priceAUD2016, c(0.75), na.rm = TRUE)
+  )
+
+#gather sumdat for charting
+
+sumdatallgat <- sumdatall %>% gather(`Q1`, `IQmean`, `Q3`, key = "group", value = "price")
+
+#Chart for IQR and IQmean as lines - no ribbon
+
+IQR_IQmean_line <- qplot(year, price, data = sumdatallgat, color = group, geom = "line") +
+  labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
+  scale_x_continuous(breaks = pretty(sumdatmaxmingat$year, n=10)) +
+  scale_y_continuous(breaks = seq(0,500, by = 20)) +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="bottom")
+
+#IQR, IQR mean chart with facets of original data
+
+multiplot(IQR_IQmean_line, allfacet, cols = 1)
+
+#Alternative plot with linear model using max min
+
+#identify max and min in full data set
+
+full0595<- cpriceh %>% 
+  group_by(year) %>% 
+  summarise(
+    count = n(),
+    low = quantile(priceAUD2016, c(0.05), na.rm = TRUE),
+    mid = mean(priceAUD2016, trim = 0.25, na.rm = TRUE),
+    high = quantile(priceAUD2016, c(0.95), na.rm = TRUE)
+  )
+
+#Gather for plotting
+
+full0595gat <- full0595 %>% gather(`low`, `mid`, `high`, key = "group", value = "price")
+
+#plot using linear model
+
+full0595gat_pt <-qplot(year, price, data = full0595gat, color = group, geom = c("smooth"), method = "lm", se = F) +
+  labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
+  scale_x_continuous(breaks = pretty(full0595gat$year, n=10)) +
+  scale_y_continuous(breaks = seq(0,700, by = 20)) +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="bottom")
+
+#multiplot with facets
+
+multiplot(full0595gat_pt, allfacet, cols = 1)
+
+#  Max-min code for ribbon or lines  (note year must be numeric)
+
+rgmaxmin <- function(x, ...) {qs <- quantile(as.numeric(x), c(0.0, 1), na.rm = T)
+names(qs) <- c("ymin", "ymax")
+qs
+}
+
+#0.05 trim to establish the midline)
+
+trmean05 <- function(x, ...) {md1 <- mean(as.numeric(x), trim = 0.05, na.rm = TRUE)
+md1
+} 
+
+trmean00 <- trmean05 <- function(x, ...) {md1 <- mean(as.numeric(x), trim = 0.00, na.rm = TRUE)
+md1
+} 
+
+
+# Ribbon code repeated below for cpricehlow - i.e. without DEBIS data
+
+nodebis <- ggplot(cpricehlow, aes(year, priceAUD2016)) +
+  stat_summary(fun.data = "rgmaxmin", geom = "ribbon", fill = alpha("blue", 1/5)) +
+  stat_summary(aes(year), fun.y = trmean00, geom = "line", color = "black") +
+  labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
+  scale_x_continuous(breaks = pretty(cpricehlow$year, n=5)) +
+  scale_y_continuous(breaks = pretty(cpricehlow$priceAUD2016, n=10))
+
+#Code for faceted selection of charts one for each price series
+r1 <- qplot(year, priceAUD2016, data = cpricehlow, geom = "line", group = source) + facet_wrap(~source, labeller = as_labeller(facet_names)) +
+  labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
+  scale_x_continuous(breaks = pretty(cpricehlow$year, n=5)) +
+  scale_y_continuous(breaks = pretty(cpricehlow$priceAUD2016, n=8)) +
+  theme(axis.text.x = element_text(angle=45, vjust=0.8, hjust=0.8))
+#Code to change names for facets
+facet_names2 <- c(
+  `CPRS15AUD2016` = "CPRS -15 Aust Emissions Price",
+  `CPRS15INTAUD2016` = "CPRS -15 Intn Emissions Price",
+  `Garnaut25AUD2016` = "Garnaut -25 Aust Emissions Price",
+  `garnaut25INTAUD2016` = "Garnaut -25 Intn Emissions Price",
+  `PET2017R` = "Pathways 2017",
+  `WEO2016R` = "WEO 2016"
+)
+#Code to put faceted charts and ribbon on a single page.
+multiplot(r, r1, cols=1)
+
+#Create table of values to parallel chart
+
+sumdatmaxmin <- cpricehlow %>% 
+  group_by(year) %>% 
+  summarise(
+    count = n(),
+    low = quantile(priceAUD2016, c(0.0), na.rm = TRUE),
+    mid = mean(priceAUD2016, trim = 0.00, na.rm = TRUE),
+    high = quantile(priceAUD2016, c(1), na.rm = TRUE)
+  )
+
+#fitting a linear model to price overall
+
+qplot(year, priceAUD2016, data = cpriceh, geom = c("smooth"), method = "lm") +
+labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
+ # scale_x_continuous(breaks = pretty(cpricehlow$year, n=10)) +
+ # scale_y_continuous(breaks = pretty(cpricehlow$priceAUD2016, n=10))
+
+#fit linear model to gathered summarised data (i.e. low, mid, high)
+
+sumdatmaxmingat <- sumdatmaxmin %>% gather("low", "mid", "high", key = "type", value = "price")
+
+lmmaxminred <- qplot(year, price, data = sumdatmaxmingat, color = type, geom = c("smooth"), method = "lm", se = F) +
+labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
+  scale_x_continuous(breaks = pretty(sumdatmaxmingat$year, n=10)) +
+ scale_y_continuous(breaks = seq(0,300, by = 20))
+
+#multiplot for reduced data set (no DEBIS) max min 
+
+multiplot(lmmaxminred, r1, cols=1)

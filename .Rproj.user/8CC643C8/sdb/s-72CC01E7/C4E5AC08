@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "#Code for charts for paper - i.e. missing prices etc.\n\n  qplot(year, price, data=AR5, geom = \"line\", color = ModelScenario) + \n  labs(x = \"Year\", y = bquote('2016 AUD/t'~CO[2]~'-e')) +\n  scale_x_continuous(breaks = seq(2020, 2050, by = 5)) +\n  scale_y_continuous(breaks = seq(0,1600, by = 100)) +\n  theme(legend.title=element_blank()) +\n    theme_bw () +\n    theme(legend.title=element_blank()) +\n    theme(legend.position=\"bottom\") +\n    theme(legend.text = element_text(size=7)) +\n    theme(axis.text = element_text(size=7)) +\n    theme(panel.grid.major.x = element_blank(), panel.grid.major.y =  element_blank()) +\n    theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y =  element_blank()) +\n    theme(legend.title=element_blank())\n  \n  ggplot(AR5, aes(year, price)) +\n    stat_summary(fun.data = \"iqr\", geom = \"ribbon\", fill = alpha(\"blue\", 1/5)) +\n    stat_summary(aes(year), fun.y = IQmean, geom = \"line\", color = \"blue\") +\n    stat_summary(aes(year), fun.y = low25, geom = \"line\", color = \"green\") +\n    stat_summary(aes(year), fun.y = high65, geom = \"line\", color = \"red\") +\n    labs(x = \"Year\", y = bquote('2016 AUD/t'~CO[2]~'-e')) +\n    scale_x_continuous(breaks = seq(2020, 2050, by = 5)) +\n    theme_bw () +\n  #  theme(legend.position=\"bottom\") +\n  #  theme(legend.text = element_text(size=7)) +\n    theme(panel.grid.major.x = element_blank(), panel.grid.major.y =  element_blank()) +\n    theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y =  element_blank()) +\n    theme(axis.text.y = element_blank(), axis.ticks.y=element_blank()) +\n    theme(axis.text.x = element_text(size = 10))\n    \n  \n  #function for low and high lines\n  \n  low35 <- fIQmean <- function(x, ...) {md1 <- quantile(as.numeric(x), c(0.35), na.rm = TRUE)\n  md1\n  } \n  \n  high65 <- fIQmean <- function(x, ...) {md1 <- quantile(as.numeric(x), c(0.65), na.rm = TRUE)\n  md1\n  } \n",
+    "created" : 1505981063134.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1865749611",
+    "id" : "C4E5AC08",
+    "lastKnownWriteTime" : 1505983725,
+    "last_content_update" : 1505983725071,
+    "path" : "~/Documents/GitHub/R-repository-test/R-test/Code for charts for paper 1.R",
+    "project_path" : "Code for charts for paper 1.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
