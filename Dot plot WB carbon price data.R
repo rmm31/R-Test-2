@@ -18,10 +18,10 @@ ggplot(wbpriceorder, aes(x=name, y=price2017, color = instrument)) +
                linetype="dashed", 
                size=0.1) +   # Draw dashed lines
   labs(title="Prices in implemented carbon pricing initiatives (World Bank data)",
-       caption="Note: Nominal prices on April, 01 2017 
+       caption="`Note: Nominal prices on April, 01 2017 
        Prices are not necessarily comparable between carbon pricing initiatives because of differences 
        in the number of sectors covered and allocation methods applied, specific exemptions, and different 
-       compensation methods.", y = bquote('2017 USD/t'~CO[2]~'e'), x = "Price Initiative") +  
+       compensation methods.'", y = bquote('2017 USD/t'~CO[2]~'e'), x = "Price Initiative") +  
   scale_y_continuous(breaks = seq(0,150, by = 10)) +
   coord_flip() 
 
