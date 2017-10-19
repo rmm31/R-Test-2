@@ -4,10 +4,10 @@ AR5 <- as.tibble(AR5R)
 
 AR5 <- AR5 %>% gather(`2020`,`2030`,`2040`, `2050`, key = "year", value ="price")
 
-AR5$year <- as.numeric(AR5$year)
+fin_AR5_subset_market$year <- as.numeric(fin_AR5_subset_market$year)
 
 
-AR5a <-qplot(year, price, data=AR5, geom = "line", color = ModelScenario) + 
+AR5a <-qplot(year, price, data=fin_AR5_subset_market, geom = "line", color = model_scenario) + 
   labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
   scale_x_continuous(breaks = seq(2020, 2050, by = 5)) +
   scale_y_continuous(breaks = seq(0,1600, by = 100)) +
@@ -30,7 +30,7 @@ md1
 } 
 
 #Code for IQR ribbon with IQmean
-AR5rib <- ggplot(AR5, aes(year, price)) +
+AR5rib <- ggplot(fin_AR5_subset_market, aes(year, price)) +
   stat_summary(fun.data = "iqr", geom = "ribbon", fill = alpha("blue", 1/5)) +
   stat_summary(aes(year), fun.y = IQmean, geom = "line", color = "black") +
   labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
@@ -41,7 +41,7 @@ theme(axis.text = element_text(size=7)) #+
 # theme(legend.position="bottom")
 
 #Code for faceted selection of charts one for each price series
-AR5facet <- qplot(year, price, data = AR5, geom = "line", group = ModelScenario) + facet_wrap(~ModelScenario) +
+AR5facet <- qplot(year, price, data = fin_AR5_subset_market, geom = "line", group = model_scenario) + facet_wrap(~model_scenario) +
   labs(x = "Year", y = bquote('2016 AUD/t'~CO[2]~'-e')) +
   scale_x_continuous(breaks = pretty(cpricefin$year, n=5)) +
    theme(axis.text.x = element_text(angle=45, vjust=0.8, hjust=0.8)) +
@@ -52,11 +52,15 @@ multiplot(AR5a, AR5facet, AR5rib, cols=1)
 
 #Create table of values to parallel chart
 
-sumdatallfin <- cpricefin %>% 
+fin_AR5_lower_tab <- fin_AR5_lower_PPP %>% 
   group_by(year) %>% 
   summarise(
     count = n(),
-    Q1 = quantile(priceAUD2016, c(0.25), na.rm = TRUE),
-    IQmean = mean(priceAUD2016, trim = 0.25, na.rm = TRUE),
-    Q3 = quantile(priceAUD2016, c(0.75), na.rm = TRUE)
+    min = min(price, na.rm = TRUE),
+    Q1 = quantile(price, c(0.25), na.rm = TRUE),
+    median = median(price, na.rm = TRUE),
+    mean = mean(price, na.rm = TRUE),
+    IQmean = mean(price, trim = 0.25, na.rm = TRUE),
+    Q3 = quantile(price, c(0.75), na.rm = TRUE),
+    max = max(price, na.rm = TRUE)
   )
