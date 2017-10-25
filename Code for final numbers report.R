@@ -21,7 +21,7 @@ ggplot(numbers_report_fin_Market_GDP_1, aes(x = factor(year), y = price)) +
   #geom_violin() + 
   geom_boxplot(width = 0.3) +
   scale_y_continuous(breaks = seq(0,900, by = 25)) +
-  labs(x = "Year", y = bquote(~AUD[2016]~'/t'~CO[2]~'or /t'~CO[2]~'-e')) +
+  labs(x = "Year", y = bquote('AUD/t'~CO[2]~'or /t'~CO[2]~'-e')) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank() ) +
   theme(panel.grid.minor.x = element_blank()) +
@@ -33,7 +33,7 @@ qplot(y=existingcp, x= 1, geom = "boxplot") +
   scale_y_continuous(breaks = seq(0,200, by = 10)) +
   theme_bw() +
   theme(axis.text.x = element_blank(), axis.ticks.x=element_blank()) +
-  labs(y = bquote(~AUD[2017]~'/t'~CO[2]~'or /t'~CO[2]~'-e')) +
+  labs(y = bquote('AUD/t'~CO[2]~'or /t'~CO[2]~'-e')) +
   theme(panel.grid.major.x = element_blank()) +
   theme(panel.grid.minor.x = element_blank()) +
   theme(axis.title.x = element_blank()) +
