@@ -52,7 +52,7 @@ multiplot(AR5a, AR5facet, AR5rib, cols=1)
 
 #Create table of values to parallel chart
 
-fin_AR5_lower_tab <- fin_AR5_lower_PPP %>% 
+all_AR5_tab <- all_AR5 %>% 
   group_by(year) %>% 
   summarise(
     count = n(),
@@ -64,3 +64,6 @@ fin_AR5_lower_tab <- fin_AR5_lower_PPP %>%
     Q3 = quantile(price, c(0.75), na.rm = TRUE),
     max = max(price, na.rm = TRUE)
   )
+
+
+
