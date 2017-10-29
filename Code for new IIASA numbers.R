@@ -20,21 +20,39 @@ New_IIASA_Price_data_AUS <- mutate(New_IIASA_Price_data_AUS, priceAUSlog2add = l
 
 New_IIASA_Price_data_AUS_no_baseline <- filter(New_IIASA_Price_data_AUS, !(Scenario == "SSP1-Baseline" | Scenario == "SSP2-Baseline" | Scenario == "SSP3-Baseline" | Scenario == "SSP4-Baseline" | Scenario == "SSP5-Baseline"))
 
+#OR use grepl as follows
+
+New_IIASA_Price_data_AUS_no_baseline <- filter(New_IIASA_Price_data_AUS, !grepl('Baseline', Scenario))
+
 #Look only at OECD data
 
 New_IIASA_Price_data_AUS_no_baseline_OECD <- filter(New_IIASA_Price_data_AUS_no_baseline, Region == "R5.2OECD")
 
-#Look only at SSP1 (sustainable pathway) data grepl('subset of text value', variable) there's also a !grepl function
+#Remove price data with values 0< x <1
+
+New_IIASA_Price_data_AUS_no_baseline_OECD <- filter(New_IIASA_Price_data_AUS_no_baseline_OECD, price > 1 | price == 0)
+
+#Remove strange prices that start at $35 in 2020 and then go to zero - WITCH-GLOBIOM SSP1-60 and WITCH-GLOBIOM SSP4-60 - the later years that go to zero are already gone
+
+New_IIASA_Price_data_AUS_no_baseline_OECD_WitchGLOBIOM <- filter(New_IIASA_Price_data_AUS_no_baseline_OECD, Model == "WITCH-GLOBIOM")
+
+#Remove years after 2050
+
+New_IIASA_Price_data_AUS_no_baseline_OECD_to_2050 <- filter(New_IIASA_Price_data_AUS_no_baseline_OECD, year <2051)
+
+#Divide by scenario pathway data grepl('subset of text value', variable) -- example for above filter(mtcars, grepl('Toyota|Mazda', type))
 
 New_IIASA_Price_data_AUS_no_baseline_OECD_SSP1 <- filter(New_IIASA_Price_data_AUS_no_baseline, grepl('SSP1', Scenario))
 New_IIASA_Price_data_AUS_no_baseline_OECD_SSP2 <- filter(New_IIASA_Price_data_AUS_no_baseline, grepl('SSP2', Scenario))
 New_IIASA_Price_data_AUS_no_baseline_OECD_SSP3 <- filter(New_IIASA_Price_data_AUS_no_baseline, grepl('SSP3', Scenario))
 New_IIASA_Price_data_AUS_no_baseline_OECD_SSP4 <- filter(New_IIASA_Price_data_AUS_no_baseline, grepl('SSP4', Scenario))
+New_IIASA_Price_data_AUS_no_baseline_OECD_SSP5 <- filter(New_IIASA_Price_data_AUS_no_baseline, grepl('SSP5', Scenario))
 
-#example for above filter(mtcars, grepl('Toyota|Mazda', type))
 
 
-New_IIASA_Price_data_tot_AUD_no_baseline_OECD_SSP4_tab <- New_IIASA_Price_data_AUS_no_baseline_OECD_SSP4 %>% 
+#Create summary tables for each scenario and for total 
+
+New_IIASA_Price_data_tot_AUD_no_baseline_OECD_to_2050_tab <- New_IIASA_Price_data_AUS_no_baseline_OECD_to_2050 %>% 
   group_by(year) %>% 
   summarise(
     count = n(),
@@ -47,10 +65,11 @@ New_IIASA_Price_data_tot_AUD_no_baseline_OECD_SSP4_tab <- New_IIASA_Price_data_A
     max = max(priceAUS, na.rm = TRUE)
   )
 
-New_IIASA_box <- ggplot(New_IIASA_Price_data_AUS_no_baseline_OECD, aes(x = factor(year), y = priceAUS)) + 
+New_IIASA_box <- ggplot(New_IIASA_Price_data_AUS_no_baseline_OECD_to_2050, aes(x = factor(year), y = priceAUS)) + 
   #geom_violin() + 
   geom_boxplot(width = 0.3) + # coef = 0, outlier.shape = NA) + Setting outlier shape to NA removes outliers
-  scale_y_continuous(limits = quantile(New_IIASA_Price_data_AUS$priceAUS, c(0.1, 0.75))) + #setting limit removes effect of outliers
+  geom_jitter() +
+  #scale_y_continuous(limits = quantile(New_IIASA_Price_data_AUS$priceAUS, c(0.1, 0.75)), breaks = seq(0,350, by = 25)) + #setting limit removes effect of outliers, but it might also affect placement of median line
   labs(x = "Year", y = bquote('AUD/t'~CO[2]~'or /t'~CO[2]~'-e')) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank() ) +
