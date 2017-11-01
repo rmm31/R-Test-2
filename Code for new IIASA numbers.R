@@ -40,6 +40,11 @@ New_IIASA_Price_data_AUS_no_baseline_OECD_WitchGLOBIOM <- filter(New_IIASA_Price
 
 New_IIASA_Price_data_AUS_no_baseline_OECD_to_2050 <- filter(New_IIASA_Price_data_AUS_no_baseline_OECD, year <2051)
 
+#Remove outliers greater than 500
+
+New_IIASA_Price_data_AUS_no_baseline_OECD_to_2050_no_outliers <- filter(New_IIASA_Price_data_AUS_no_baseline_OECD_to_2050, priceAUS < 501)
+
+
 #Divide by scenario pathway data grepl('subset of text value', variable) -- example for above filter(mtcars, grepl('Toyota|Mazda', type))
 
 New_IIASA_Price_data_AUS_no_baseline_OECD_SSP1 <- filter(New_IIASA_Price_data_AUS_no_baseline, grepl('SSP1', Scenario))
@@ -47,7 +52,6 @@ New_IIASA_Price_data_AUS_no_baseline_OECD_SSP2 <- filter(New_IIASA_Price_data_AU
 New_IIASA_Price_data_AUS_no_baseline_OECD_SSP3 <- filter(New_IIASA_Price_data_AUS_no_baseline, grepl('SSP3', Scenario))
 New_IIASA_Price_data_AUS_no_baseline_OECD_SSP4 <- filter(New_IIASA_Price_data_AUS_no_baseline, grepl('SSP4', Scenario))
 New_IIASA_Price_data_AUS_no_baseline_OECD_SSP5 <- filter(New_IIASA_Price_data_AUS_no_baseline, grepl('SSP5', Scenario))
-
 
 
 #Create summary tables for each scenario and for total 
@@ -65,11 +69,13 @@ New_IIASA_Price_data_tot_AUD_no_baseline_OECD_to_2050_tab <- New_IIASA_Price_dat
     max = max(priceAUS, na.rm = TRUE)
   )
 
-New_IIASA_box <- ggplot(New_IIASA_Price_data_AUS_no_baseline_OECD_to_2050, aes(x = factor(year), y = priceAUS)) + 
+New_IIASA_box <- ggplot(New_IIASA_Price_data_AUS_no_baseline_OECD_to_2050_no_outliers, aes(x = factor(year), y = priceAUS)) + 
   #geom_violin() + 
-  geom_boxplot(width = 0.3) + # coef = 0, outlier.shape = NA) + Setting outlier shape to NA removes outliers
-  geom_jitter() +
-  #scale_y_continuous(limits = quantile(New_IIASA_Price_data_AUS$priceAUS, c(0.1, 0.75)), breaks = seq(0,350, by = 25)) + #setting limit removes effect of outliers, but it might also affect placement of median line
+  geom_boxplot(width = 0.3, outlier.shape = NA) + #Setting outlier shape to NA removes outliers
+  #geom_point(alpha=0.3, shape = 21) +
+  #scale_y_log10() +
+  scale_y_continuous(breaks = seq(0,500, by = 25)) +
+  #scale_y_continuous(limits = quantile(New_IIASA_Price_data_AUS_no_baseline_OECD_to_2050_no_outliers$priceAUS, c(0, 0.75)), breaks = seq(0,400, by = 25)) + #setting limit removes effect of outliers, but it might also affect placement of median line
   labs(x = "Year", y = bquote('AUD/t'~CO[2]~'or /t'~CO[2]~'-e')) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank() ) +
