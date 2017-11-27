@@ -85,7 +85,7 @@ ggplot(numbers_report_fin_Market_GDP_1_with_existing, aes(x = factor(year), y = 
   labs(x = "Year", y = bquote('AUD/t'~CO[2]~'or /t'~CO[2]~'-e')) +
   scale_color_manual(name = "Carbon value source", labels = c("Existing carbon prices", "Modelled carbon values \n(excluding US EPA SCC)"), values = c("blue", "red")) +
   geom_point(data = numbers_report_USEPA_SCC, aes(x = factor(year), y = price, fill = scenario), shape = 24, size = 3) +
-  scale_fill_manual(name = "US EPA SCC values", labels = c("2.5% DR", "3% DR", "5% DR", "95th pct 3% DR"), values = c("green", "purple", "brown", NA)) +
+  scale_fill_manual(name = "US EPA SCC values\n(Discount rate and statistic)", labels = c("2.5% average", "3% average", "5% average", "High impact\n(95th pct 3%)"), values = c("green", "purple", "brown", NA)) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank() ) +
   theme(panel.grid.minor.x = element_blank()) +
@@ -118,7 +118,7 @@ ggplot(numbers_report_fin_Market_GDP_1_with_existing, aes(x = factor(year), y = 
 geom_point(data = numbers_report_USEPA_SCC, aes(x = factor(year), y = price, fill = scenario), shape = 24, size = 3) +
   scale_y_continuous(breaks = seq(0,400, by = 25)) +
   labs(x = "Year", y = bquote(~AUD[2016]~'/t'~CO[2]~' ')) +
-  scale_fill_manual(name = "US EPA SCC values", labels = c("2.5% DR", "3% DR", "5% DR", "95th pct 3% DR"), values = c("green", "purple", "brown", NA)) +
+  scale_fill_manual(name = "US EPA SCC values\n(Discount rate and statistic)", labels = c("2.5% average", "3% average", "5% average", "High impact\n(95th pct 3%)"), values = c("green", "purple", "brown", NA)) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank() ) +
   theme(panel.grid.minor.x = element_blank()) +
@@ -182,4 +182,32 @@ ggplot(numbers_report_carbon_pricing_init_no_pilots_r, aes(x = factor(year), y =
   labs(title = "Existing carbon pricing initiatives", subtitle = "(World Bank data)") +
   theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5)) +
   theme(plot.subtitle = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=16, hjust=0.5)) 
+
+#data recoded as numbers_report_all_data_recoded to distinguish origin (e.g. modelled - international etc.) for dotplot
+
+ggplot(subset(numbers_report_all_data_recoded, type !="Existing carbon price"), aes(x = factor(year), y = price)) +
+  geom_dotplot(aes(fill = type), binaxis = "y", stackdir = "center", binwidth = 15) +
+  scale_y_continuous(breaks = seq(0,900, by = 25)) +
+  labs(x = "Year", y = bquote('AUD/t'~CO[2]~'or /t'~CO[2]~'-e')) +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank() ) +
+  theme(panel.grid.minor.x = element_blank()) +
+  theme(axis.text=element_text(size=12),axis.title=element_text(size=14,face="bold")) +
+  scale_fill_manual(name = "Carbon value source", labels = c("CPLC and Corridors project expert elicitation", "Australian Government modeling (including CCA)", "IEA and IRENA modelling", "UK Government modelling"), values = c("blue", "red", "green", "purple")) +
+  ggtitle("Modelled carbon values") +
+  theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
+
+#data recoded as numbers_report_all_data_recoded to distinguish origin (e.g. modelled - international etc.) for dotplot
+
+ggplot(subset(numbers_report_all_data_recoded, type !="Existing carbon price"), aes(x = factor(year), y = price)) +
+  geom_jitter(aes(color= type), size = 5, width = 0.18, alpha = 0.5) +
+  scale_y_continuous(breaks = seq(0,900, by = 25)) +
+  labs(x = "Year", y = bquote('AUD/t'~CO[2]~'or /t'~CO[2]~'-e')) +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank() ) +
+  theme(panel.grid.minor.x = element_blank()) +
+  theme(axis.text=element_text(size=12),axis.title=element_text(size=14,face="bold")) +
+  scale_color_manual(name = "Carbon value source", labels = c("CPLC and Corridors project expert elicitation", "Australian Government modeling (including CCA)", "IEA and IRENA modelling", "UK Government modelling"), values = c("blue", "red", "green", "purple")) +
+  ggtitle("Modelled carbon values") +
+  theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
   
