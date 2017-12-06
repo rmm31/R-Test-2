@@ -32,7 +32,10 @@ ar5_public_version102_carbon_price_450_2020_2050 <- ar5_public_version102_carbon
 
 #Convert
 
+USD2005_to_AUD2005 <- 1.309473333
+AUD2005_to_AUD2016 <- 99.58627679/75.09789593
 
+ar5_public_version102_carbon_price_450_2020_2050 <- mutate(ar5_public_version102_carbon_price_450_2020_2050, price1 = price * USD2005_to_AUD2005 * AUD2005_to_AUD2016)
 
 #Plot all model runs on one line plot
 
@@ -99,8 +102,27 @@ theme(axis.text = element_text(size=7)) #+
   ggtitle("Subset of AR5 modelled carbon prices 2020—2050") +
   theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
 
+  #Code for Q1, Q2 with median - completed to send to Steph on 20171205
+  
+  ggplot(AR5_Subset_less_than_1000_for_Stephanie_20171204, aes(year, price)) +
+    stat_summary(aes(year), fun.y = Q1, geom = "line", color = "blue", size=1) +
+    stat_summary(aes(year), fun.y = Q2, geom = "line", color = "red") +
+    stat_summary(aes(year), fun.y = Q3, geom = "line", color = "green", size = 1) +
+   # stat_summary(aes(year), fun.y = IQmean, geom = "line", color = "black", size = 1) +
+    labs(x = "Year", y = bquote(~AUD[2016]~'/t'~CO[2]~' ')) +
+    scale_x_continuous(breaks = seq(2020, 2050, by = 10)) +
+    scale_y_continuous(breaks = seq(0,1200, by = 50)) +
+    theme(axis.text = element_text(size=7)) +
+    theme_bw() +
+    theme(panel.grid.major.x = element_blank() ) +
+    theme(panel.grid.minor.x = element_blank()) +
+    theme(axis.text=element_text(size=12),axis.title=element_text(size=14,face="bold")) +
+    ggtitle("Subset of AR5 modelled carbon prices 2020—2050") +
+    theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
+  
+  
 #Code for Q1, Q2 with IQmean for all AR5
-ggplot(All_AR5_runs_at_450, aes(year, price)) +
+ggplot(ar5_public_version102_carbon_price_450_2020_2050, aes(year, price1)) +
   stat_summary(aes(year), fun.y = Q1, geom = "line", color = "blue", size=1) +
   # stat_summary(aes(year), fun.y = Q2, geom = "line", color = "red") +
   stat_summary(aes(year), fun.y = Q3, geom = "line", color = "green", size = 1) +
@@ -113,7 +135,7 @@ ggplot(All_AR5_runs_at_450, aes(year, price)) +
   theme(panel.grid.major.x = element_blank() ) +
   theme(panel.grid.minor.x = element_blank()) +
   theme(axis.text=element_text(size=12),axis.title=element_text(size=14,face="bold")) +
-  ggtitle("Subset of AR5 modelled carbon prices 2020—2050") +
+  ggtitle("AR5 modelled carbon prices 2020—2050") +
   theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
 
  
@@ -146,7 +168,7 @@ multiplot(AR5a, AR5facet, AR5rib, cols=1)
 
 #Create table of values to parallel chart
 
-AR5_for_steph_tab_20171204 <- AR5_Subset_less_than_1000_for_Stephanie_20171204 %>% 
+AR5_for_steph_tab_subset_20171204 <- AR5_Subset_less_than_1000_for_Stephanie_20171204 %>% 
   group_by(year) %>% 
   summarise(
     count = n(),
@@ -160,15 +182,16 @@ AR5_for_steph_tab_20171204 <- AR5_Subset_less_than_1000_for_Stephanie_20171204 %
   )
 
 #Create table of values for all 450 scenarios
+
 AR5_for_steph_tab_all_ar5_20171204 <- ar5_public_version102_carbon_price_450_2020_2050 %>% 
   group_by(year) %>% 
   summarise(
     count = n(),
-    min = min(price, na.rm = TRUE),
-    Q1 = quantile(price, c(0.25), na.rm = TRUE),
-    median = median(price, na.rm = TRUE),
-    mean = mean(price, na.rm = TRUE),
-    IQmean = mean(price, trim = 0.25, na.rm = TRUE),
-    Q3 = quantile(price, c(0.75), na.rm = TRUE),
+    min = min(price1, na.rm = TRUE),
+    Q1 = quantile(price1, c(0.25), na.rm = TRUE),
+    median = median(price1, na.rm = TRUE),
+    mean = mean(price1, na.rm = TRUE),
+    IQmean = mean(price1, trim = 0.25, na.rm = TRUE),
+    Q3 = quantile(price1, c(0.75), na.rm = TRUE),
     max = max(price, na.rm = TRUE)
   )
