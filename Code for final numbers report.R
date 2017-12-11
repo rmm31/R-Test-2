@@ -210,4 +210,28 @@ ggplot(subset(numbers_report_all_data_recoded, type !="Existing carbon price"), 
   scale_color_manual(name = "Carbon value source", labels = c("CPLC and Corridors project expert elicitation", "Australian Government modeling (including CCA)", "IEA and IRENA modelling", "UK Government modelling"), values = c("blue", "red", "green", "purple")) +
   ggtitle("Modelled carbon values") +
   theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
-  
+
+#joyplot for final data
+
+library(tidyverse)
+library(ggridges)
+
+ggplot(numbers_report_fin_Market_GDP_1, aes(x = price, y = factor(year), height = ..density..)) +
+  geom_density_ridges(scale = 1.5, stat = "density") + 
+  labs(y = "Year", x = bquote('AUD/t'~CO[2]~'or /t'~CO[2]~'-e')) +
+  theme_bw() +
+  scale_x_continuous(breaks = seq(0,900, by = 50)) +
+  scale_y_discrete(limits = rev(levels(factor(numbers_report_fin_Market_GDP_1$year)))) +
+  theme(panel.border = element_blank(), axis.line = element_line()) +
+  ggtitle("Modelled carbon values") +
+  theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
+
+#Test
+ggplot(diamonds, aes(x = price, y = cut, fill = cut, height = ..density..)) +
+  geom_density_ridges(scale = 4, stat = "density") +
+  scale_y_discrete(expand = c(0.01, 0)) +
+  scale_x_continuous(expand = c(0.01, 0)) +
+  scale_fill_brewer(palette = 4) +
+  theme_ridges() + theme(legend.position = "none")
+
+

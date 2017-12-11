@@ -144,6 +144,8 @@ ggplot(ar5_public_version102_carbon_price_450_2020_2050, aes(year, price1)) +
 ggplot(AR5_Subset_less_than_1000_for_Stephanie_20171204, aes(x = factor(year), y = price)) + 
   #geom_violin() + 
   geom_boxplot(width = 0.3) +
+  stat_summary(fun.y = IQmean, geom = "point", color = "red", fill = "red", shape = 24) +
+  #stat_summary(fun.y = mean, geom = "point", color = "blue", fill = "blue", shape = 23) +
   scale_y_continuous(breaks = seq(0,1000, by = 50)) +
   labs(x = "Year", y = bquote(~AUD[2016]~'/t'~CO[2]~'')) +
   theme_bw() +
@@ -154,6 +156,40 @@ ggplot(AR5_Subset_less_than_1000_for_Stephanie_20171204, aes(x = factor(year), y
   theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
 
   
+#Code for summary with boxplot for all data
+
+ggplot(ar5_public_version102_carbon_price_450_2020_2050, aes(x = factor(year), y = price1)) + 
+  #geom_violin() + 
+  geom_boxplot(width = 0.3) +
+  stat_summary(fun.y = IQmean, geom = "point", color = "red", fill = "red", shape = 24) +
+  stat_summary(fun.y = mean, geom = "point", color = "blue", fill = "blue", shape = 23) +
+  #scale_y_log10() +
+  labs(x = "Year", y = bquote(~AUD[2016]~'/t'~CO[2]~'')) +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank() ) +
+  theme(panel.grid.minor.x = element_blank()) +
+  theme(axis.text=element_text(size=12),axis.title=element_text(size=14,face="bold")) +
+  ggtitle("AR5 modelled carbon prices 2020—2050") +
+  theme(plot.title = element_text(family = "xkcd-Regular", color="#666666", face="bold", size=24, hjust=0.5))
+
+
+
+#Code for summary with boxplot
+
+ggplot(AR5_Subset_less_than_1000_for_Stephanie_20171204, aes(x = factor(year), y = price)) + 
+  #geom_violin() + 
+  geom_boxplot(width = 0.3) +
+  stat_summary(fun.y = IQmean, geom = "point", color = "red", fill = "red", shape = 24) +
+  #geom_point(data = numbers_report_USEPA_SCC, aes(x = factor(year), y = price, ), shape = 24, size = 3) +
+  scale_y_continuous(breaks = seq(0,1000, by = 50)) +
+  labs(x = "Year", y = bquote(~AUD[2016]~'/t'~CO[2]~'')) +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank() ) +
+  theme(panel.grid.minor.x = element_blank()) +
+  theme(axis.text=element_text(size=12),axis.title=element_text(size=14,face="bold")) +
+  ggtitle("Subset of AR5 modelled carbon prices 2020—2050") +
+  theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
+
 
 
 #Code for faceted selection of charts one for each price series
@@ -195,3 +231,26 @@ AR5_for_steph_tab_all_ar5_20171204 <- ar5_public_version102_carbon_price_450_202
     Q3 = quantile(price1, c(0.75), na.rm = TRUE),
     max = max(price, na.rm = TRUE)
   )
+
+#Joyplot for AR5 data
+
+#Get rid of outliers 
+
+ar5_public_version102_carbon_price_450_2020_2050_no_outliers_2000 <- filter(ar5_public_version102_carbon_price_450_2020_2050, price1 < 2000)
+ar5_public_version102_carbon_price_450_2020_2050_no_outliers_1000 <- filter(ar5_public_version102_carbon_price_450_2020_2050, price1 < 1000)
+
+
+
+library(tidyverse)
+library(ggridges)
+
+ggplot(ar5_public_version102_carbon_price_450_2020_2050_no_outliers_1000, aes(y = factor(year), x = price1,  height = ..density..)) +
+  geom_density_ridges(stat = "density") +
+  labs(y = "Year", x = bquote(~AUD[2016]~'/'~tCO[2]~'')) +
+  scale_x_continuous(breaks = seq(0,1000, by = 50)) +
+  theme_bw() +
+  scale_y_discrete(limits = rev(levels(factor(ar5_public_version102_carbon_price_450_2020_2050$year)))) +
+  theme(panel.border = element_blank(), axis.line = element_line()) +
+  ggtitle("AR5 modelled carbon prices 2020—2050") +
+  theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
+
