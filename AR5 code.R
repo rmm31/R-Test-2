@@ -229,7 +229,9 @@ AR5_for_steph_tab_all_ar5_20171204 <- ar5_public_version102_carbon_price_450_202
     mean = mean(price1, na.rm = TRUE),
     IQmean = mean(price1, trim = 0.25, na.rm = TRUE),
     Q3 = quantile(price1, c(0.75), na.rm = TRUE),
-    max = max(price, na.rm = TRUE)
+    max = max(price1, na.rm = TRUE),
+    IQrange = Q3 - Q1,
+    Outliers = 1.5*IQrange
   )
 
 #Joyplot for AR5 data
@@ -238,19 +240,59 @@ AR5_for_steph_tab_all_ar5_20171204 <- ar5_public_version102_carbon_price_450_202
 
 ar5_public_version102_carbon_price_450_2020_2050_no_outliers_2000 <- filter(ar5_public_version102_carbon_price_450_2020_2050, price1 < 2000)
 ar5_public_version102_carbon_price_450_2020_2050_no_outliers_1000 <- filter(ar5_public_version102_carbon_price_450_2020_2050, price1 < 1000)
+ar5_public_version102_carbon_price_450_2020_2050_no_outliers_Tukey <- filter(ar5_public_version102_carbon_price_450_2020_2050, price1 < 1321.5340) #the cutoff here is taken from the table generated in the code above
 
 
+#Joyplot code
 
 library(tidyverse)
 library(ggridges)
 
 ggplot(ar5_public_version102_carbon_price_450_2020_2050_no_outliers_1000, aes(y = factor(year), x = price1,  height = ..density..)) +
-  geom_density_ridges(stat = "density") +
+  geom_density_ridges(stat = "density", fill = '#619CFF', color = "#619CFF") + #blue color added
   labs(y = "Year", x = bquote(~AUD[2016]~'/'~tCO[2]~'')) +
   scale_x_continuous(breaks = seq(0,1000, by = 50)) +
   theme_bw() +
-  scale_y_discrete(limits = rev(levels(factor(ar5_public_version102_carbon_price_450_2020_2050$year)))) +
+  scale_y_discrete(limits = rev(levels(factor(ar5_public_version102_carbon_price_450_2020_2050_no_outliers_1000$year)))) +
   theme(panel.border = element_blank(), axis.line = element_line()) +
   ggtitle("AR5 modelled carbon prices 2020—2050") +
   theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5))
+
+#Histogram code with facet grid
+
+library(tidyverse)
+
+ggplot(ar5_public_version102_carbon_price_450_2020_2050_no_outliers_1000, aes(x = price1)) +
+  geom_histogram(bins = 200) +
+  facet_wrap(~year, nrow = 4) +
+  labs(y = "Count", x = bquote(~AUD[2016]~'/'~tCO[2]~'')) +
+  scale_x_continuous(breaks = seq(0,1000, by = 50)) +
+  theme_bw() +
+  theme(panel.border = element_blank(), axis.line = element_line()) +
+  ggtitle("Subset of AR5 modelled carbon prices 2020—2050") +
+  theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=24, hjust=0.5)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#density plot with color
+
+p <- ggplot(ar5_public_version102_carbon_price_450_2020_2050_no_outliers_1000, aes(x = price1,  y = ..density..)) +
+  theme_bw() + 
+  geom_density(color = '#619CFF') +
+  labs(y = "Year", x = bquote(~AUD[2016]~'/'~tCO[2]~'')) +
+  scale_x_continuous(breaks = seq(0,80000, by = 2500)) +
+facet_wrap(~year, nrow = 4) 
+# new code is below
+q12.5 <- quantile(x, .125) # 1 Std 68.2%
+q87.5 <- quantile(x, .875)
+meanx <- mean(price1)
+medx  <- median(price1)
+x.dens  <- density(price1)
+df.dens <- data.frame(x=x.dens$price1)
+
+p + geom_area(data = subset(df.dens, x >= q12.5 & x <= q87.5), # 1 Std 68.2%
+              aes(x=x,y=y), fill='#619CFF', alpha=0.8) +
+  geom_vline(xintercept=meanx) +
+  geom_vline(xintercept=medx, color='#FFFFFF') 
+  
+  
 
